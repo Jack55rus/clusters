@@ -86,7 +86,7 @@ class Const(object):
 					max_summ_edge = summ/len(X_percent_matrix)
 					max_a = a
 
-		return max_a
+		return max_a, F
 
 	def __calculate_weights_by_Y(self, X_percent_matrix, X, started_a):
 
