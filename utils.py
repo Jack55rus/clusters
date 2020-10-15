@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-def get_F(data, a, target=[]):
+def get_F_example(data, a, target=[]):
 	if len(target)==0:
 		F = []
 		for cur_point in data:
@@ -11,7 +11,7 @@ def get_F(data, a, target=[]):
 	else:
 		return np.sum([( np.linalg.norm(point[1:] - target[1:]) + a)**(-2) for point in data])
 
-def get_F_example(data, a, target=[]):
+def get_F(data, a, target=[]):
 	if len(target)==0:
 		F = []
 		for i, cur_point in enumerate(data):
