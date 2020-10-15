@@ -13,23 +13,24 @@ class Clusters():
 		self.contur_config = config['conturs']
 		self.cluster_config = config['isolated_cluster']
 
-	def __get_contours(F):
+	def __get_contours(self, F):
 		contours = [[]]
 		lenghts = []
 		i = -1
 		while i < len(F)-1:
-			i+= 1
+			i += 1
 			# добавляем точку в контур
 			contours[-1].append(F[i])
 			# решаем, начинать ли добавление новый контур
 			if (len(contours[-1]) >= self.contur_config['contour_points']) and \
 				(contours[-1][0][-1] - contours[-1][-1][-1] >= self.contur_config['min_diff']):
 				contours.append([])
-				i-= self.contur_config['min_points']
+				i -= self.contur_config['min_points']
 		contours_lens = []
 		k = 0
+		# print('contours', contours)
 		for contour in contours:
-			k+= 1
+			k += 1
 			# считаем среднее по контуру расстояние
 			lens = []
 			min_lens = []
@@ -44,14 +45,6 @@ class Clusters():
 					min_lens.append(lens[i][c])
 			contours_lens.append(np.mean(min_lens))
 		return contours, contours_lens
-
-	@staticmethod
-	def find_cluster(point):# вспомогательная функция для поиска кластера, которому принадлежит точка point
-		for i in range(len(clusters)):
-			for p in clusters[i]:
-				if p[0] == point[0]:
-					return i
-		return None
 
 	def get_profile(self, F, p1, p2):
 
@@ -83,7 +76,8 @@ class Clusters():
 					x.append((p1[j] + p2[j]*(i+1)/(num_of_segments-i))/(1+(i+1)/(num_of_segments-i)))
 				points.append(np.array(x))
 
-			Fs = [[point[1],  point[2], get_F([f[:-1] for f in F], self.config['consts']['a'], target=point)] for point in points]
+			Fs = [[point[1],  point[2], get_F_example([f[:-1] for f in F], self.config['consts']['a'], target=point)] \
+																									for point in points]
 			Fs = sorted(Fs, key = lambda S: S[-1], reverse = False)
 
 			log_message+= 'Разбиение:\n'
@@ -106,14 +100,25 @@ class Clusters():
 
 		X = df.iloc[:].values
 		F = np.array(get_F_example(X, self.config['consts']['a']))[:,-1]
+		# F = sorted(F, key = lambda S: S[-1], reverse = True)
 		df['F'] = F
+		df = df.sort_values(by=['F'], ascending=False)
 
-		contours, contours_lens = self.__get_contours(F)
+		contours, contours_lens = self.__get_contours(df.iloc[:].values)
 		clusters = []
 		clusters_F_max = []
 
+		def find_cluster(point):
+			for i in range(len(clusters)):
+				for p in clusters[i]:
+					if p[0] == point[0]:
+						return i
+			return None
+
 		cur_contour = 0
 		merge_times = 1
+
+		F = df.iloc[:].values
 
 		# перебираем точки по убыванию функционала
 		c = 0
