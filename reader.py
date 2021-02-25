@@ -38,7 +38,7 @@ class Reader(object):
 			print('Wrong column name format')
 			return False
 		for i, col_name in enumerate(df.columns):
-			print(col_name[0])
+			# print(col_name[0])
 			if i == 0 and col_name != 'id':
 				print('Wrong column name format')
 				return False
@@ -51,9 +51,9 @@ class Reader(object):
 		'''writes df to file, returns nothing or None'''
 		file_extension = file_path.split('.')[1]
 		if file_extension == 'csv':
-			out_df = pd.to_csv(file_path) 
+			out_df.to_csv(file_path, index=False) 
 		elif file_extension == 'xlsx' or file_extension == 'xls':
-			out_df = pd.to_excel(file_path) 
+			out_df.to_excel(file_path, index=False) 
 		else:
 			print('Unsupported format')
 			return

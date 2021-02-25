@@ -5,11 +5,13 @@ def get_F_example(data, a, target=[]):
 	if len(target)==0:
 		F = []
 		for cur_point in data:
-			cur_point = np.append(cur_point, np.sum([( np.linalg.norm(point[1:] - cur_point[1:]) + a)**(-2) for point in data]))
+			# cur_point = np.append(cur_point, np.sum([( np.linalg.norm(point[1:] - cur_point[1:]) + a)**(-2) for point in data]))
+			cur_point = np.append(cur_point, np.sum([a/(np.linalg.norm(point[1:] - cur_point[1:])**2 + a) for point in data])/(data.shape[0]))
+			# cur_point = np.append(cur_point, np.sum([(np.linalg.norm(point[1:] - cur_point[1:])**2 + a)**(-1) for point in data]))
 			F.append(cur_point)
 		return F
 	else:
-		return np.sum([( np.linalg.norm(point[1:] - target[1:]) + a)**(-2) for point in data])
+		return np.sum([a/(np.linalg.norm(point[1:] - target[1:])**2 + a) for point in data])
 
 def get_F(data, a, target=[]):
 	if len(target)==0:
@@ -20,4 +22,4 @@ def get_F(data, a, target=[]):
 		    F.append(cur_point)
 		return F
 	else:
-		return np.sum([( np.linalg.norm(point[1:] - target[1:]) + a)**(-2) for point in data])
+		return np.sum([(np.linalg.norm(point[1:] - target[1:]) + a)**(-2) for point in data])

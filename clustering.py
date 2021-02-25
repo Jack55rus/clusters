@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from tqdm import tqdm
 from utils import get_F_example
 
 import logging
@@ -9,11 +10,15 @@ logger = logging.getLogger(__name__)
 
 class Clusters():
 	def __init__(self, config):
+		self.nameignore = ['F', 'cluster_id', 'subcluster_id']
 		self.config = config
 		self.contur_config = config['conturs']
 		self.cluster_config = config['isolated_cluster']
 
 	def __get_contours(self, F):
+		"""
+		input - F = ['id', 'X1',...,'Xn', 'F']
+		"""
 		contours = [[]]
 		lenghts = []
 		i = -1
@@ -38,7 +43,7 @@ class Clusters():
 				lens.append([])
 				for j in range(len(contour)):
 					curlen = np.linalg.norm(np.array(contour[i])[1:-1] - np.array(contour[j])[1:-1])
-					if contour[j][0]!= contour[i][0]:
+					if contour[j][0]!= contour[i][0] and curlen!= 0:
 						lens[i].append(curlen)
 				lens[i] = sorted(lens[i])
 				for c in range(self.contur_config['num_of_lenghts']):
@@ -47,12 +52,13 @@ class Clusters():
 		return contours, contours_lens
 
 	def get_profile(self, F, p1, p2):
-
+		#Функция рассчета профиля F - матрица формата ['id','x1',...,'xn','F'], p1, p2 - точки формата ['id','x1',...,'xn','F']
 		log_message = 'Расчет профиля для точек: {} и {}\n'.format(p1, p2)
 
 		log_message+= 'Расстояние между точками: {}'.format(np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1])))
 
-		if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1]))/self.cluster_config['divider'] <= self.contur_config['min_diff']:
+		# if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1]))/self.cluster_config['divider'] <= self.contur_config['min_diff']:
+		if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1])) <= self.contur_config['min_diff']:
 			log_message+= 'Расстояние между точками/divier меньше минимальной разности, поэтому, точки близкие.\n'
 			logging.debug(log_message)
 			return 'close', 0
@@ -97,17 +103,31 @@ class Clusters():
 				return 'common', Fstar - Fmin
 
 	def get_isolated_clusters(self, df):
+		"""
+		input - DataFrame ['id', 'X1', 'X2', ..., 'Xn', 'F'] 
+		"""
+		#transform df to ['id', 'X1',...,'Xn'] format
+		strted_ids = df['id'].min()
 
-		X = df.iloc[:].values
-		F = np.array(get_F_example(X, self.config['consts']['a']))[:,-1]
-		# F = sorted(F, key = lambda S: S[-1], reverse = True)
-		df['F'] = F
-		df = df.sort_values(by=['F'], ascending=False)
+		need_names = [n for n in df.columns if n not in self.nameignore] 
+		df_correct = df[need_names].copy()
 
-		contours, contours_lens = self.__get_contours(df.iloc[:].values)
+		X = df_correct.iloc[:].values #get numpy array ['id', 'X1',...,'Xn']
+		F = np.array(get_F_example(X, self.config['consts']['a']))[:,-1] #Calculate F
+
+		df['F'] = F #add F to first df
+		# print(F)
+		df_correct['F'] = F #add F to correct df
+
+		F = df_correct.iloc[:].values # ['id', 'X1',...,'Xn', 'F']
+		F = sorted(F, key = lambda S: S[-1], reverse = True)
+
+		contours, contours_lens = self.__get_contours(F)
+
 		clusters = []
 		clusters_F_max = []
 
+		# вспомогательная функция для поиска кластера, которому принадлежит точка point
 		def find_cluster(point):
 			for i in range(len(clusters)):
 				for p in clusters[i]:
@@ -118,11 +138,9 @@ class Clusters():
 		cur_contour = 0
 		merge_times = 1
 
-		F = df.iloc[:].values
-
 		# перебираем точки по убыванию функционала
 		c = 0
-		for cur_point in F:
+		for cur_point in tqdm(F):
 			c+= 1 # номер итерации
 
 			cur_point = np.array(cur_point)
@@ -237,8 +255,14 @@ class Clusters():
 
 						F_max = clusters_F_max[i][-1]
 						F_max_point = clusters_F_max[i]
-
+						# print(F)
+						# print('*'*10)
+						# print(F_max_point)
+						# print('*'*10)
+						# print(cur_point)
+						# print('=============================')
 						cur_profile, cur_dif = self.get_profile(F, F_max_point, cur_point)
+						# print(cur_profile)
 						if cur_profile == 'close' or cur_profile == 'common':
 							curlen = np.linalg.norm(np.array(cur_point[1:-1]) - np.array(F_max_point[1:-1]))
 							candidates.append(i)
@@ -280,5 +304,11 @@ class Clusters():
 						clusters_F_max.append(cur_point)
 			
 			logging.debug(log_message)
-					
-		return clusters
+
+		df['cluster_id'] = 0
+		for idx, cluster in enumerate(clusters):
+		    for point in cluster:
+		        df.at[df[df['id']==int(point[0])].index, 'cluster_id'] = idx
+		df = df.sort_values(by=['id'])
+
+		return df
