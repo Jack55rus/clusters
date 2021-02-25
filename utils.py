@@ -11,7 +11,7 @@ def get_F_example(data, a, target=[]):
 			F.append(cur_point)
 		return F
 	else:
-		return np.sum([a/(np.linalg.norm(point[1:] - target[1:])**2 + a) for point in data])
+		return np.sum([a/(np.linalg.norm(point[1:] - target[1:])**2 + a) for point in data])/(data.shape[0])
 
 def get_F(data, a, target=[]):
 	if len(target)==0:
