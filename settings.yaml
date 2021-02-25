@@ -21,6 +21,7 @@ knots: # Для разметки узлов
 
 consts:
   percent_for_norms: 40 #Процент для нормировки
+  percent_of_zeros: 0.005
   round_const: 2 #Количество знаков после запятой
   const: 0.25 # Начальная констана
   percent_X: 5 # X% матрицы расстояний

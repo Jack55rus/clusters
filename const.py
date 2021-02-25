@@ -26,9 +26,17 @@ class Const(object):
 			x = X[:, i]
 			d = pairwise_distances(x[:, np.newaxis]).ravel()
 			d.sort()
-			d = d[d != 0]
-			num = max(int(d.shape[0] * percent / 100), 2)
-			norm = d[:num].mean()
+			lenght = max(int(d.shape[0] * percent / 100), 1)
+			start = 0
+			finish = lenght
+			time_d = d[start:lenght]
+			print('Persent of zeros start:',len(time_d[time_d==0])/len(time_d),'for X', i)
+			while finish<=len(d)-1 and len(time_d[time_d==0])/len(time_d) > self.config['consts']['percent_of_zeros']:
+				start += 1
+				finish += 1
+				time_d = d[start:finish]
+			print('Persent of zeros finish:',len(time_d[time_d==0])/len(time_d),'for X', i)
+			norm = d[start:finish].mean()
 			x = x / norm
 			norms.append(norm)
 			X[:, i] = x
@@ -348,7 +356,16 @@ class Const(object):
 
 		#Выбираем X% матрицы расстояний
 		lenght = int(np.round(distance_matrix.shape[0]*(self.config['consts']['percent_X']/100), 0))
-		X_percent_matrix = distance_matrix[:lenght]
+		start = 0
+		finish = lenght
+		time_d = distance_matrix[start:finish]
+		print('Persent of zeros start:',len(time_d[time_d[:,2]==0])/len(time_d))
+		while finish<=len(distance_matrix)-1 and len(time_d[time_d[:,2]==0])/len(time_d) > self.config['consts']['percent_of_zeros']:
+			print('Persent of zeros new:',len(time_d[time_d[:,2]==0])/len(time_d))
+			start += 1
+			finish += 1
+			time_d = distance_matrix[start:finish]
+		X_percent_matrix = distance_matrix[start:finish]
 
 		#Вычисляем начальное значение a
 		mean_distance_matrix = X_percent_matrix[:,2].mean()
