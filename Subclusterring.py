@@ -13,7 +13,7 @@ class Subclusters(object):
 		# print(p1)
 		#Функция рассчета профиля F - матрица формата ['id','x1',...,'xn','F'], p1, p2 - точки формата ['id','x1',...,'xn','F']
 		# if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1]))/self.config['isolated_cluster']['divider'] <= self.config['conturs']['min_diff']:
-		if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1])) <= self.config['conturs']['min_diff']:
+		if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1])) <= self.config['isolated_cluster']['min_len']:
 			return 'close', 0
 		else:
 			div_num = 0
@@ -268,6 +268,8 @@ class Subclusters(object):
 			print('Calculate for ', len(clusters), 'clusters')
 			for cluster in clusters:
 				current = df[df['cluster_id']==cluster]
+				if current.shape[0]<2:
+					continue
 				need_names = [n for n in current.columns if n not in self.nameignore] 
 				current = current[need_names]
 				result = self.__subclusterig(current, type_of_closed)

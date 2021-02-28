@@ -1,19 +1,19 @@
 conturs: # разбиение на контуры
   min_points: 30
   contour_points: 50 # const2
-  min_diff:       [10, 10] # const3
+  min_diff:       [20, 20] # const3
   num_of_lenghts: 4 # const4
  
 isolated_cluster: # Первые этап - получение изолированных кластеров
   constU1: 0.05
   min_len: 0.5
-  min_dif: [10, 10]
+  min_dif: [20, 20]
   divider: 2
   max_div_num: 8
   merge_threshold: 1.75 #Константа разницы Ф для мерджинга
 
 subcluster:
-  F_step: 0.2
+  F_step: 0.001
 
 knots: # Для разметки узлов
   min_fuses_num: 15

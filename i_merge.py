@@ -14,7 +14,7 @@ class IMerger():
 
 	def __get_profile(self, F, p1, p2):
 
-		if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1])) <= self.config['conturs']['min_diff']:
+		if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1])) <= self.config['isolated_cluster']['min_len']:
 			return min(p1[-1],p2[-1])
 		else:
 			div_num = 0
@@ -62,6 +62,7 @@ class IMerger():
 		num_clusters = len(set(df['cluster_id']))
 
 		matrix = df.iloc[:, 1:-2].values
+		map_index = {index:k for k,index in enumerate(df['id'].values)}
 		dist_matrix = np.zeros((len(matrix), len(matrix)))
 		for i in range(len(matrix)):
 			for j in range(len(matrix)):
@@ -78,7 +79,7 @@ class IMerger():
 				if line1[1] == line2[1]:
 					continue
 				a_dist.append(
-					[line1[0], dist_matrix[int(line1[0])-1, int(line2[0])-1], line2[0], line2[1]])
+					[line1[0], dist_matrix[map_index[int(line1[0])], map_index[int(line2[0])]], line2[0], line2[1]])
 			a_dist.sort(key=lambda i: float(i[1]), reverse=False)
 			dist_arr.append(a_dist[0])
 

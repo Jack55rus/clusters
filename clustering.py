@@ -58,7 +58,7 @@ class Clusters():
 		log_message+= 'Расстояние между точками: {}'.format(np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1])))
 
 		# if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1]))/self.cluster_config['divider'] <= self.contur_config['min_diff']:
-		if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1])) <= self.contur_config['min_diff']:
+		if np.linalg.norm(np.array(p1[1:-1]) - np.array(p2[1:-1])) <= self.cluster_config['min_len']:
 			log_message+= 'Расстояние между точками/divier меньше минимальной разности, поэтому, точки близкие.\n'
 			logging.debug(log_message)
 			return 'close', 0
@@ -255,14 +255,7 @@ class Clusters():
 
 						F_max = clusters_F_max[i][-1]
 						F_max_point = clusters_F_max[i]
-						# print(F)
-						# print('*'*10)
-						# print(F_max_point)
-						# print('*'*10)
-						# print(cur_point)
-						# print('=============================')
 						cur_profile, cur_dif = self.get_profile(F, F_max_point, cur_point)
-						# print(cur_profile)
 						if cur_profile == 'close' or cur_profile == 'common':
 							curlen = np.linalg.norm(np.array(cur_point[1:-1]) - np.array(F_max_point[1:-1]))
 							candidates.append(i)

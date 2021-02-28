@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-def get_F_example(data, a, target=[]):
+def get_F_example(data, a, target=[]):#add attribute of norm on consts
 	if len(target)==0:
 		F = []
 		for cur_point in data:
@@ -11,7 +11,7 @@ def get_F_example(data, a, target=[]):
 			F.append(cur_point)
 		return F
 	else:
-		return np.sum([a/(np.linalg.norm(point[1:] - target[1:])**2 + a) for point in data])/(data.shape[0])
+		return np.sum([a/(np.linalg.norm(point[1:] - target[1:])**2 + a) for point in data])/len(data)
 
 def get_F(data, a, target=[]):
 	if len(target)==0:
