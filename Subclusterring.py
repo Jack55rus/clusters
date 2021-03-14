@@ -268,7 +268,7 @@ class Subclusters(object):
 			print('Calculate for ', len(clusters), 'clusters')
 			for cluster in clusters:
 				current = df[df['cluster_id']==cluster]
-				if current.shape[0]<2:
+				if current.shape[0]<2:#Исправить если в кластере 1 точка
 					continue
 				need_names = [n for n in current.columns if n not in self.nameignore] 
 				current = current[need_names]
